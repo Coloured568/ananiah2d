@@ -3,6 +3,12 @@
 
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
+#include <SFML/Graphics/Rect.hpp>
+
+#include <memory>
+
+// hey so maybe u should start documenting ur stuff :D
 
 class Input
 {
@@ -33,24 +39,51 @@ public:
         textures[name] = std::move(texture);
     }
 
-
-
     sf::Texture& GetTexture(const std::string& name) {
       return textures.at(name);
     }
 
     void NewSprite(const sf::Texture &texture, const std::string& name) {
-      sf::Sprite sprite(texture);
       sprites.insert({name, sf::Sprite(texture)});
     }
 
     sf::Sprite& GetSprite(const std::string& name) {
       return sprites.at(name);
     }
+
+    void NewFont(const std::string Filepath, const std::string& name) {
+      sf::Font font(Filepath);
+      fonts[name] = font;
+    }
+
+    sf::Font& GetFont(const std::string& font) {
+      return fonts.at(font);
+    }
+
+    void NewText(const sf::Font font, const std::string name) {
+      texts.insert({name, sf::Text(font)});
+    }
+
+    sf::Text& GetText(const std::string& name) {
+      return texts.at(name);
+    }
+
+    sf::Vector2f GetTextCenter(const sf::Text& text)
+    {
+        sf::FloatRect bounds = text.getLocalBounds();
+        return {
+            bounds.position.x + bounds.size.x / 2.f,
+            bounds.position.y + bounds.size.y / 2.f
+        };
+    }
+
+
 private:
     std::unordered_map<std::string, sf::RectangleShape> rectangles;
     std::unordered_map<std::string, sf::Texture> textures;
     std::unordered_map<std::string, sf::Sprite> sprites;
+    std::unordered_map<std::string, sf::Font> fonts;
+    std::unordered_map<std::string, sf::Text> texts;
 };
 
 // add fullscreen support n stuff later
@@ -84,6 +117,24 @@ public:
 
 private:
     std::unordered_map<std::string, std::unique_ptr<sf::RenderWindow>> windows;
+};
+
+class Audio {
+public:
+    void NewAudio(const std::string& filepath, const std::string& name) {
+        auto music = std::make_unique<sf::Music>();
+        if (!music->openFromFile(filepath)) {
+            throw std::runtime_error("Failed to open audio file: " + filepath);
+        }
+        audios[name] = std::move(music);
+    }
+
+    sf::Music& GetAudio(const std::string& name) {
+        return *audios.at(name);
+    }
+
+private:
+    std::unordered_map<std::string, std::unique_ptr<sf::Music>> audios;
 };
 
 #endif
