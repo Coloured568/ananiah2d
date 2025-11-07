@@ -1,3 +1,7 @@
+#include <iostream>
+#include <chrono>
+#include <thread>
+
 #include "a2d.hpp"
 
 Input input;
@@ -9,23 +13,22 @@ float speed = 5.0f;
 int main()
 {
     Window window(400, 300, "Annaiah2d", "main");
+    bool splash = true;
 
     window.GetWindow("main").setFramerateLimit(60);
 
-    gfx.NewTexture("textures/yab.png", "yab");
-    gfx.NewTexture("textures/nyn.jpg", "mylan");
-    gfx.NewSprite(gfx.GetTexture("yab"), "bg");
-    gfx.NewSprite(gfx.GetTexture("mylan"), "player");
+    gfx.NewFont("fonts/px.ttf", "pixel");
+    gfx.NewText(gfx.GetFont("pixel"), "title");
 
-    gfx.GetSprite("bg").setScale({
-        400.0f / gfx.GetSprite("bg").getTexture().getSize().x,
-        400.0f / gfx.GetSprite("bg").getTexture().getSize().y
-    });
+    gfx.GetText("title").setString("Annaiah2d");
+    gfx.GetText("title").setFillColor(sf::Color::White);
+    gfx.GetText("title").setCharacterSize(24);
 
-    gfx.GetSprite("player").setScale({
-        50.0f / gfx.GetSprite("player").getTexture().getSize().x,
-        50n.0f / gfx.GetSprite("player").getTexture().getSize().y
-    });
+    auto& title = gfx.GetText("title");
+    title.setOrigin(gfx.GetTextCenter(title));
+    title.setPosition({200.f, 100.f});
+
+    gfx.NewRectangle(50, 50, "player");
 
     while (window.GetWindow("main").isOpen())
     {
@@ -33,31 +36,37 @@ int main()
 
         window.pollEvents(window.GetWindow("main"));
 
+        while(splash == true) {
+          window.GetWindow("main").clear();
+          window.GetWindow("main").draw(gfx.GetText("title"));
+          window.GetWindow("main").display();
+          std::this_thread::sleep_for(std::chrono::seconds(2));
+          splash = false;
+        }
+
         if (input.escape()) {
             window.GetWindow("main").close();
         }
 
          if(input.right()) {
-            gfx.GetSprite("player").move({speed, 0.0f});
+            gfx.GetRect("player").move({speed, 0.0f});
          }
 
         if(input.left()) {
-          gfx.GetSprite("player").move({-speed, 0.0f});
+          gfx.GetRect("player").move({-speed, 0.0f});
         }
 
         if(input.up()) {
-          gfx.GetSprite("player").move({0.0f, -speed});
+          gfx.GetRect("player").move({0.0f, -speed});
         }
 
          if(input.down()) {
-           gfx.GetSprite("player").move({0.0f, speed});
+           gfx.GetRect("player").move({0.0f, speed});
          }
 
         window.GetWindow("main").clear();
 
-        window.GetWindow("main").draw(gfx.GetSprite("bg"));
-
-        window.GetWindow("main").draw(gfx.GetSprite("player"));
+        window.GetWindow("main").draw(gfx.GetRect("player"));
 
         window.GetWindow("main").display();
     }
