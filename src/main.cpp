@@ -14,7 +14,7 @@ int main() {
     Graphics gfx;
     Input input;
     Random rand;
-    Window winManager(400, 300, "Annaiah2D", "main");
+    Window winManager(400, 300, "Anaiah2D", "main");
     auto& window = winManager.GetWindow("main");
 
 
