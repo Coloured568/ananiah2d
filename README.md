@@ -1,4 +1,4 @@
-# Annaiah2d!
+# Anaiah2d!
 UNFINISHED/IN DEV SOME THINGS MIGHT RUN LIKE DOOKIE
 
 A convenient SFML wrapper, see `src/main.cpp` for a nice example.
