@@ -5,7 +5,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics/Rect.hpp>
-
+#include <random>
 #include <memory>
 
 // hey so maybe u should start documenting ur stuff :D
@@ -22,7 +22,7 @@ public:
 
 class Graphics {
 public:
-    void NewRectangle(float w, float h, const std::string& name) {
+    void NewRect(float w, float h, const std::string& name) {
         sf::RectangleShape rect({w, h});
         rectangles[name] = rect;  // store it in the map
     }
@@ -77,6 +77,18 @@ public:
         };
     }
 
+    void NewTriangle(float size, const std::string& name) {
+        sf::ConvexShape tri;
+        tri.setPointCount(3);
+        tri.setPoint(0, {0.f, size});
+        tri.setPoint(1, {size / 2.f, 0.f});
+        tri.setPoint(2, {size, size});
+        triangles[name] = tri;
+    }
+
+    sf::ConvexShape& GetTriangle(const std::string& name) {
+        return triangles.at(name);
+    }
 
 private:
     std::unordered_map<std::string, sf::RectangleShape> rectangles;
@@ -84,6 +96,7 @@ private:
     std::unordered_map<std::string, sf::Sprite> sprites;
     std::unordered_map<std::string, sf::Font> fonts;
     std::unordered_map<std::string, sf::Text> texts;
+    std::unordered_map<std::string, sf::ConvexShape> triangles;
 };
 
 // add fullscreen support n stuff later
@@ -138,3 +151,27 @@ private:
 };
 
 #endif
+
+class Random {
+public:
+    Random()
+        : rng(std::random_device{}()) {}
+
+    float Float(float min, float max) {
+        std::uniform_real_distribution<float> dist(min, max);
+        return dist(rng);
+    }
+
+    int Int(int min, int max) {
+        std::uniform_int_distribution<int> dist(min, max);
+        return dist(rng);
+    }
+
+    bool Chance(float probability) {
+        std::bernoulli_distribution dist(probability);
+        return dist(rng);
+    }
+
+private:
+    std::mt19937 rng;
+};
