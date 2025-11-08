@@ -1,73 +1,66 @@
+#include "a2d.hpp"
+#include <vector>
+#include <string>
 #include <iostream>
 #include <chrono>
 #include <thread>
 
-#include "a2d.hpp"
+struct Star {
+    std::string name;
+    float speed;
+};
 
-Input input;
+int main() {
+    Graphics gfx;
+    Input input;
+    Random rand;
+    Window winManager(400, 300, "Annaiah2D", "main");
+    auto& window = winManager.GetWindow("main");
 
-Graphics gfx;
-
-float speed = 5.0f;
-
-int main()
-{
-    Window window(400, 300, "Annaiah2d", "main");
-    bool splash = true;
-
-    window.GetWindow("main").setFramerateLimit(60);
 
     gfx.NewFont("fonts/px.ttf", "pixel");
-    gfx.NewText(gfx.GetFont("pixel"), "title");
-
-    gfx.GetText("title").setString("Annaiah2d");
-    gfx.GetText("title").setFillColor(sf::Color::White);
-    gfx.GetText("title").setCharacterSize(24);
-
+    auto& pixel = gfx.GetFont("pixel");
+    gfx.NewText(pixel, "title");
     auto& title = gfx.GetText("title");
     title.setOrigin(gfx.GetTextCenter(title));
-    title.setPosition({200.f, 100.f});
+    title.setPosition({110.f, 100.f});
 
-    gfx.NewRectangle(50, 50, "player");
+    title.setString("Annaiah2d");
+    title.setFillColor(sf::Color::White);
+    title.setCharacterSize(24);
 
-    while (window.GetWindow("main").isOpen())
-    {
-        window.GetWindow("main").setSize(sf::Vector2u(400, 400));
+    const int numStars = 150;
+    std::vector<Star> stars;
+    stars.reserve(numStars);
 
-        window.pollEvents(window.GetWindow("main"));
+    for (int i = 0; i < numStars; ++i) {
+        std::string name = "star_" + std::to_string(i);
+        float size = rand.Float(1.f, 3.f);
+        gfx.NewRect(size, size, name);
+        auto& star = gfx.GetRect(name);
+        star.setPosition({rand.Float(0.f, 400.f), rand.Float(0.f, 300.f)});
+        sf::Color c(rand.Int(0, 255), rand.Int(0, 255), rand.Int(0, 255), rand.Int(80, 200));
+        star.setFillColor(c);
+        stars.push_back({name, rand.Float(0.05f, 0.3f)});
+    }
 
-        while(splash == true) {
-          window.GetWindow("main").clear();
-          window.GetWindow("main").draw(gfx.GetText("title"));
-          window.GetWindow("main").display();
-          std::this_thread::sleep_for(std::chrono::seconds(2));
-          splash = false;
+    while (window.isOpen()) {
+        winManager.pollEvents(window);
+
+        window.clear();
+        for (auto& s : stars) {
+            auto& rect = gfx.GetRect(s.name);
+            sf::Vector2f pos = rect.getPosition();
+            pos.y += s.speed;
+            if (pos.y > 300) {
+                pos.y = 0;
+                pos.x = rand.Float(0.f, 400.f);
+            }
+            rect.setPosition(pos);
         }
-
-        if (input.escape()) {
-            window.GetWindow("main").close();
-        }
-
-         if(input.right()) {
-            gfx.GetRect("player").move({speed, 0.0f});
-         }
-
-        if(input.left()) {
-          gfx.GetRect("player").move({-speed, 0.0f});
-        }
-
-        if(input.up()) {
-          gfx.GetRect("player").move({0.0f, -speed});
-        }
-
-         if(input.down()) {
-           gfx.GetRect("player").move({0.0f, speed});
-         }
-
-        window.GetWindow("main").clear();
-
-        window.GetWindow("main").draw(gfx.GetRect("player"));
-
-        window.GetWindow("main").display();
+        for (auto& s : stars)
+            window.draw(gfx.GetRect(s.name));
+        window.draw(title);
+        window.display();
     }
 }
