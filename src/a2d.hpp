@@ -140,17 +140,21 @@ public:
             throw std::runtime_error("Failed to open audio file: " + filepath);
         }
         audios[name] = std::move(music);
+        filepaths[name] = filepath;
     }
 
     sf::Music& GetAudio(const std::string& name) {
         return *audios.at(name);
     }
 
+    std::string GetFilepath(const std::string& name) {
+      return filepaths.at(name);
+    }
+
 private:
     std::unordered_map<std::string, std::unique_ptr<sf::Music>> audios;
+    std::unordered_map<std::string, std::string> filepaths;
 };
-
-#endif
 
 class Random {
 public:
@@ -175,3 +179,35 @@ public:
 private:
     std::mt19937 rng;
 };
+
+class Camera {
+public:
+    float x, y;
+    float fov; // This is effectively the zoom factor
+
+    Camera(float px = 0, float py = 0, float zoom = 1.f)
+        : x(px), y(py), fov(zoom) {}
+
+    void apply(sf::RenderWindow& window) {
+        sf::View view;
+        view.setCenter({x, y}m );
+
+        // Zoom: SFML zoom multiplies the size of the view
+        view.setSize(window.getDefaultView().getSize());
+        view.zoom(fov);
+
+        window.setView(view);
+    }
+
+    void setPosition(float posX, float posY) {
+        x = posX;
+        y = posY;
+    }
+
+    void setZoom(float d) {
+        fov = d;
+    }
+};
+
+
+#endif
